@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<header class="feed-header">
+    <h1 class="feed-title">Home</h1>
+    <div class="feed-tabs">
+        <span class="active">Latest posts</span>
+        <span>About this blog</span>
+    </div>
+</header>
+
+<!-- Visual-only composer, mimics X's "What is happening?!" box -->
+<div class="composer" aria-hidden="true">
+    <div class="avatar">F</div>
+    <div class="composer-body">
+        <div class="composer-input">What did you learn today?</div>
+        <div class="composer-row">
+            <span>FastAPI · Jinja · {{ posts|length }} posts</span>
+            <button class="btn-tweet" type="button">Post</button>
+        </div>
+    </div>
+</div>
+
+<ul class="feed">
+    {% for post in posts %}
+    <li>
+        <article class="tweet">
+            <!-- Avatar = first letter of the title, like a profile pic -->
+            <div class="avatar" aria-hidden="true">{{ post.title[0] }}</div>
+            <div class="tweet-main">
+                <div class="tweet-meta">
+                    <span class="tweet-name">{{ post.title }}</span>
+                    <span class="tweet-handle">@fastapi-learner</span>
+                    <span class="tweet-dot">·</span>
+                    <span class="tweet-id">post {{ post.id }}</span>
+                </div>
+                <h2 class="tweet-title">{{ post.title }}</h2>
+                <p class="tweet-text">{{ post.content }}</p>
+                <span class="tweet-tag">FastAPI notes</span>
+                <div class="tweet-actions">
+                    <span title="Reply">💬 {{ post.id * 3 }}</span>
+                    <span title="Repost">🔁 {{ post.id * 2 }}</span>
+                    <span title="Like">🤍 {{ post.id * 7 }}</span>
+                    <span title="Views">📊 {{ post.id * 121 }}</span>
+                </div>
+            </div>
+        </article>
+    </li>
+    {% endfor %}
+</ul>
+
+<div class="api-hint">
+    💡 This timeline is rendered by Jinja from the <code>posts</code> list in
+    <code>main.py</code>. The same data is available as JSON at
+    <a href="/api/posts"><code>/api/posts</code></a>.
+</div>
+{% endblock content %}
