@@ -10,7 +10,9 @@
 <section class="posts">
     {% for post in posts %}
     <article class="post-card">
-      <h2 class="post-title" href="{{url_for('post_page', post_id = post.id)}}">{{ post.title }}</h2>
+      <a href="{{url_for('post_page', post_id = post.id)}}">
+        <h2 class="post-title">{{ post.title }}</h2>
+      </a>
       <p class="post-excerpt">{{ post.content }}</p>
       <div class="post-meta">
         <span class="post-id">#{{ post.id }}</span>
