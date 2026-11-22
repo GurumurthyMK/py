@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -47,8 +49,8 @@ def post_page(post_id: int, request: Request):
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
 
-@app.get("/", include_in_schema=False, name="home")
-@app.get("/posts", include_in_schema=False, name="posts")
+@app.get("/", name="home")
+@app.get("/posts", name="posts")
 def home(request: Request):
     return templates.TemplateResponse(
         request, "home.html", {"posts": posts, "title": "Home"}
@@ -56,9 +58,34 @@ def home(request: Request):
 
 
 # API routes
-@app.get("/api/posts/{post_id}")
+@app.get("/api/posts/{post_id}", include_in_schema=False)
 def get_posts(post_id: int):
     for post in posts:
         if post.get("id") == post_id:
             return post
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+
+
+@app.exception_handler(StarletteHTTPException)
+def general_http_exception(request: Request, exception: StarletteHTTPException):
+    message = (
+        exception.detail
+        if exception.detail
+        else "There is some error, please try again"
+    )
+    if request.url.path.startswith("/api"):
+        return JSONResponse(
+            status_code=exception.status_code,
+            content={"Detail": message},
+        )
+
+    return templates.TemplateResponse(
+        request,
+        "errors.html",
+        {
+            "Status code": exception.status_code,
+            "title": exception.status_code,
+            "message": message,
+        },
+        status_code=exception.status_code,
+    )
